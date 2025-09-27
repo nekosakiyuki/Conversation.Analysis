@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Discord糾紛對話分析</title>
+  <style>
+    body {
+      background: #222733;
+      color: #e9e9ef;
+      font-family: 'Segoe UI', 'Noto Sans TC', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.8;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+    }
+    .container {
+      max-width: 860px;
+      margin: 32px auto;
+      background: #24263a;
+      border-radius: 14px;
+      box-shadow: 0 2px 16px #0006;
+      padding: 38px 24px 28px 24px;
+    }
+    h1 {
+      font-size: 2.2em;
+      color: #8ddcff;
+      text-align: center;
+      margin-bottom: 18px;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+    h2 {
+      color: #a3baff;
+      font-size: 1.4em;
+      border-left: 5px solid #72c5fd;
+      padding-left: 12px;
+      margin-top: 36px;
+      margin-bottom: 18px;
+      font-weight: 600;
+      background: linear-gradient(90deg,#2c365e 60%,#0000 100%);
+    }
+    h3 {
+      color: #79c7ff;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      font-size: 1.16em;
+      font-weight: 600;
+    }
+    ul, ol {
+      padding-left: 1.4em;
+      margin-bottom: 1em;
+    }
+    li {
+      margin-bottom: 0.4em;
+    }
+    .summary {
+      background: #27374d;
+      border-left: 6px solid #63d8cf;
+      padding: 18px 20px;
+      margin: 24px 0;
+      border-radius: 10px;
+      font-size: 1.08em;
+      color: #c2f5e6;
+      box-shadow: 0 2px 10px #0002;
+    }
+    .note {
+      background: #2b2e3f;
+      border-left: 4px solid #ffab91;
+      color: #ffdcc8;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin: 18px 0;
+      font-size: 0.97em;
+    }
+    code {
+      background: #232846;
+      color: #ffdc89;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+    blockquote {
+      background: #242d45;
+      color: #a5bfff;
+      border-left: 5px solid #51d8ee;
+      margin: 18px 0 18px 0;
+      padding: 14px 22px;
+      border-radius: 9px;
+      font-size: 1.08em;
+      font-style: italic;
+    }
+    @media (max-width: 600px) {
+      .container { padding: 10vw 4vw 8vw 4vw;}
+      h1 { font-size: 1.3em;}
+      h2 { font-size: 1.07em;}
+      .summary { font-size: 0.99em;}
+      blockquote, .note { font-size: 0.95em;}
+    }
+#backToTop {
+position: fixed;
+right: 32px;
+bottom: 64px;
+z-index: 1200;
+width: 48px;
+height: 48px;
+border-radius: 50%;
+background: linear-gradient(120deg, #338edc 70%, #233b68 100%);
+color: #fff;
+border: none;
+font-size: 1.7em;
+box-shadow: 0 4px 14px #233b6840;
+cursor: pointer;
+display: none; /* 預設隱藏，由JS控制 /
+align-items: center;
+justify-content: center;
+transition: background 0.2s, transform 0.18s;
+font-weight: bold;
+}
+#backToTop:hover {
+background: #23418b;
+transform: scale(1.09);
+}  
+#backToTop:hover {
+background: #23418b;
+transform: scale(1.09);
+}
+</style>
+</head>
+<body>
+  <!-- 浮水印 -->
+<div style="
+    position: fixed;
+    right: 24px;
+    bottom: 20px;
+    font-size: 2em;
+    color: rgba(255,255,255,0.42);
+    font-weight: bold;
+    text-shadow: 0 0 6px #0008;
+    user-select: none;
+    pointer-events: none;
+    z-index: 9999;
+  ">貓崎雪浮水印</div>
+</div>
+<!-- 禁止右鍵 -->
+<script>
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+document.getElementById('myVideo').addEventListener('keydown', e => e.preventDefault());
+
+</script>
+<!-- 回到頂部按鈕 -->
+<button id="backToTop" title="回到頂部" aria-label="回到頂部">↑</button>
+
+<div class="container">
+  <h1>Discord糾紛對話分析與結論</h1>
+  <div class="summary">
+    <b>關於外界疑慮的回應：</b><br>
+    本次澄清稿所陳述的內容，僅根據我個人經歷及目前已知的事證，無意針對任何人的動機或立場做出指控進行人身評論。在事件中的表現與立場，由於缺乏完整資訊，無法妄加推測，僅就公開資訊做事實陳述。過程中若有任何資訊不完整或溝通誤會，如有任何指正，也希望大家能以理性、客觀的方式討論並檢視相關事證。
+<h4>態度前後不一的具體情形：</h4>
+<ul>
+  <li>一開始強調中立立場，但後續多次發言、管理舉措卻明顯傾向特定成員（如：多次替雨楓辯護或主動為其解釋）。</li>
+  <li>對部分涉及雨楓的爭議性言論進行刪除或隱藏，導致部分事實被掩蓋，外界難以全面了解事件經過，卻選擇性回應或處理資訊，行為會讓人覺得處理標準前後不一。</li>
+</ul>
+  </div>
+
+  <h2>1. 起初會長澪曦o玥（TonyVj）的立場與態度</h2>
+  <ul>
+    <li><b>強調中立、不介入私人恩怨：</b> 多次表明「你與雨楓的私人恩怨很早就開始，不是近期也不是在公會內發生」，自己「不會挺任何一方」，僅處理公會事務。</li>
+    <li><b>自我保護、公會立場優先：</b> 責任是「保護公會、維護公會利益」，非專門保護個人。若損及公會名譽，才會依規章處理。</li>
+    <li><b>坦承人都有「自保」的言論：</b> 強調「每個人都會保護自己的言論」，但否認公會因他人言論而針對你。</li>
+    <li><b>承認雙方都有過錯、事情已經過去：</b> 認為雙方表達方式不夠柔軟，事情已經道歉與結束。</li>
+  </ul>
+
+  <h2>2. 你（雪）方面的立場與訴求</h2>
+  <ul>
+    <li><b>強調自己長期被騷擾與霸凌，影響心理健康：</b> 有完整證據與醫療證明，且已提告。對方行為嚴重影響到日常生活與身心健康。</li>
+    <li><b>希望對方公開道歉、撤回不實言論：</b> 這是你的底線，如達成則撤告，否則繼續法律程序。</li>
+    <li><b>希望公會能給予查證、協助調查機會：</b> 希望公會協助查證，確保處理公開公平，避免資訊不對等。</li>
+  </ul>
+
+  <h2>3. 對話中的協調與困難點</h2>
+  <ul>
+    <li>會長認為雙方只是誤解、表達不佳，第三方難以完全釐清。</li>
+    <li>你希望有公正第三方協助，但會長多次表明只願意就公會範圍協調，私人糾紛不介入。</li>
+    <li>你強調已尋求法律、心理協助，證據完整，若對方不配合只會走法律路線。</li>
+  </ul>
+
+  <h2>4. 公會會長的總結立場</h2>
+  <ul>
+    <li>希望雙方能理性處理、讓事情過去，不偏袒任何一方。</li>
+    <li>只要不影響公會，對個人糾紛保持中立。</li>
+    <li>如需查證調查，只協助公會層面，不做私人仲裁。</li>
+    <li>若進入法律程序，尊重司法處理。</li>
+  </ul>
+
+  <h2>5. 總結解釋</h2>
+  <ul>
+    <li>你已明確提出問題、證據與訴求，會長始終只關心公會秩序，不介入私人糾紛。</li>
+    <li>你希望有第三方公正查證，但會長只願意處理公會事務，私人糾紛建議交由法律。</li>
+    <li>會長強調沒人因言論針對你，請你放心。</li>
+    <li>最後會長表示，若雙方能釋懷就讓事情過去，公會維持秩序與中立。</li>
+  </ul>
+
+  <h2>針對「一切都是你指使」話術的分析</h2>
+  
+  <h3>話術結構與邏輯謬誤</h3>
+  <ul>
+    <li>
+      <b>無限上綱、責任集體歸咎：</b>  
+     <b>「原罪論」、「溯源歸咎」</b>，無論資訊如何流轉，都會把“最初的原罪”扣在你頭上，全部標籤成「某人的打手」或「同一陣營」，不論這些人是否彼此認識、動機為何，只要言論相似就被認定是同夥。推諉責任、抹黑受害者的手法，否認事件複雜性，強化「都是你惹出來」的印象。
+    </li>
+
+<li>
+  <b>原罪論與溯源偏見：</b>  
+  這種觀點傾向於無論參與者的多樣性或立場差異，後來不管有多少人參與討論或轉發，只要事情一開始跟某個人有關，最後一切責任還是會被算在這個人頭上。這種想法忽略了大家其實都有自己的想法和判斷，不是所有言論和行動都能代表同一個人，這是將複雜事件簡化成單一個體的問題，否認資訊流動的多元性。
+</li>
+
+    <li>
+      <b>動機推定與陰謀論：</b>  
+      當支持者、旁觀者表達質疑或聲援，就被推論「一定是被指使」或「有組織性」，藉此否定把所有外部聲音都歸於當事人策劃。這讓你陷入「不論做什麼、甚至旁人怎麼做，責任都可能歸到你身上」的邏輯陷阱。
+    </li>
+    <li>
+      <b>邏輯陷阱、剝奪自證清白的權利：</b>  
+      由於所有參與者都可被強行貼標籤，當事人無論如何澄清，外界也會認為「你怎麼解釋都是在主導、操控」，變成永遠無法擺脫指控的困局。
+    </li>
+  </ul>
+
+  <h3>這種說法的危害</h3>
+  <ul>
+    <li>
+      <b>受害者有罪論：</b>  
+      只要有人遭遇問題，所有後續討論都會被歸咎於受害者本身，無論事實如何發展，受害者都無法獲得公正對待。
+    </li>
+    <li>
+      <b>壓制異議、消音正當訴求：</b>
+      把所有聲援者和支持者都標籤為「同夥」、「打手」，實際上是在消音、排斥不同立場的聲音，讓問題無法被多元討論，等於否定所有言論自由和事實真相。
+    </li>
+    <li>
+      <b>模糊責任、推卸組織問題：</b>
+      藉由將所有糾紛歸因於單一個人，可以讓群體或組織逃避應有的自省與檢討責任。這種推論不僅站不住腳，更是對受害者和支持者的雙重傷害。
+    </li>
+  </ul>
+
+  <div class="summary">
+    <b>總結：</b><br>
+    這種話術本質上是將所有問題單一化，把所有不同的聲音和行動都歸因於一個人，進而弱化正當訴求，壓制群體討論，讓受害者陷入無法自證清白的困境。<br><br>
+    無論實際發生什麼，無論有多少人參與或討論，只要立場相同就會被貼上「同夥」標籤。這既不符事實，也嚴重損害事件中當事人的發聲與澄清權利。
+  </div>
+
+    <div class="summary">
+<b>
+    任何群體事件都不應該用簡化、標籤、推責的方式來掩蓋多元事實。每個人都有獨立發聲的權利，請理性面對每一則訊息背後的動機與證據，拒絕「一切都是誰指使」的集體抹黑言論。
+  </b>
+</div>
+
+  <h2>「一切都是你指使」的反駁與澄清</h2>
+  <h3>一、反駁「一切都是你指使」的邏輯</h3>
+  <h4>1. 責任歸咎謬誤（受害者有罪論）</h4>
+  <ul>
+    <li>這種說法把所有與你相關的言論、傳播、甚至其他人的行為，不論動機、不論真相，全部都歸咎於你本人。這是典型的「受害者有罪論」和「集體責任謬誤」。</li>
+  </ul>
+  <div class="note" style="margin-top:8px;">
+    <b>反駁要點：</b>
+    <ul>
+      <li>每個人都是獨立的行為主體，擁有自主判斷與表達意見的權利。</li>
+      <li>他人的聲援、討論或傳播，是基於他們自己的經驗、價值觀和對事實的判斷，不代表受害人有「指使」或「操控」。</li>
+      <li>將所有人的行為都歸咎於一人，是偷換邏輯、推卸責任，也是對正義與公平的侮辱。</li>
+    </ul>
+  </div>
+  
+  <h4>2. 資訊流動不等於操縱</h4>
+  <ul>
+    <li>群體事件本來就很複雜，資訊的流動不可能完全由單一個人控制。</li>
+    <li>如果只因為有立場相近的人就說大家都是「托」或「共犯」，那會否定每個人的言論自由和事實真相。</li>
+    <li>這種推論不僅站不住腳，更對受害者和支持者造成雙重傷害。</li>
+  </ul>
+  
+  <h4>3. 倒果為因、集體抹黑</h4>
+  <ul>
+    <li>只要有人挺你、質疑現狀，就說「都是你的人」，這是典型的「倒果為因」邏輯。</li>
+    <li>真正該問的是：為什麼有這麼多人質疑現狀、聲援受害者？這才是問題本質，而不是一味把責任推給受害者。</li>
+  </ul>
+  
+  <hr style="margin:32px 0 28px 0; border: none; border-top: 1.5px dashed #444b7c;">
+
+  <h3>二、澄清</h3>
+  <div class="summary" style="background:#2e344d; border-left:6px solid #7adec1; color:#eafdf6;">
+    <b>【澄清聲明】</b><br>
+    <br>
+    近日有聲音質疑「所有支持我的人、所有聲援的言論都是由我指使」這種說法，本人必須嚴正澄清如下：<br>
+    <ol style="margin-left:1em; margin-top:12px;">
+      <li>
+        <b>每個人都是獨立的個體</b>，擁有自主表達、判斷事實的權利。任何人的言論、質疑或聲援，都是基於他們自己對事件的理解和感受，並非我個人所能左右或操控。
+      </li>
+      <li>
+        將所有討論、傳播、質疑的聲音都歸咎於我，這是對事實的扭曲和對我的抹黑。如果一個群體出現多數人對同一事件表示關注或不滿，這反而說明事件本身值得檢討，而不是所有人都被我「指使」或「利用」。
+      </li>
+      <li>
+        這種「一切都是你指使」的說法，是一種常見的責任推卸與受害者有罪論，只會掩蓋問題本質，無助於事件真相的釐清。
+      </li>
+      <li>
+        歡迎根據事實本身來討論，如果有質疑，請針對具體事證與行為討論，不要對無辜聲援者貼標籤、進行群體抹黑。
+        每一位發聲者的自主權，也再次強調，任何人對事件的看法與行動，都是出於他／她自己的立場與判斷，請勿再將所有責任強加於我一人身上。<br>
+      </li>
+    </ol>
+  </div>
+
+<div class="note">
+  <b>什麼是「切割責任」？</b>
+  <ul style="margin-top:10px;">
+    <li>有些人會把事情分得很清楚，遇到問題時只把責任推到某個人身上，其他人或團體就撇得一乾二淨，好像完全沒有關係一樣。</li>
+    <li>有時候，為了自保，有些人或團體會把責任全部丟給一個人，強調「這都是他／她的事，跟我們沒關係」，這就是在切割責任。</li>
+    <li>當發生爭議時，常常會有人想要把責任劃分得很徹底，只讓某個人來承擔，其他相關的人就撇清，不願意一起面對問題。</li>
+    <li>有些情況下，大家會選擇只顧自己，把所有問題都歸咎給一個人，這就是典型的切割責任、不願承擔應有的部分。</li>
+  </ul>
+  <div style="margin-top:10px; font-weight:500;">
+    <span style="color:#ffbe81;">簡單來說：</span><br>
+    「切割責任」就是指有人遇到問題時，急著跟事情撇清，把責任推得乾乾淨淨，只讓某一個人承擔，不讓其他人或整個團體被牽連。
+  </div>
+</div>
+</div>
+</div>
+
+<script>
+const backToTop = document.getElementById('backToTop');
+window.addEventListener('scroll', function() {
+  if (window.scrollY > 380) backToTop.style.display = 'flex';
+  else backToTop.style.display = 'none';
+});
+backToTop.addEventListener('click', function() {
+  window.scrollTo({top: 0, behavior: 'smooth'});
+});
+</script>
+
+<script>
+    // 讓使用者按 ESC 也能關閉面板
+    document.addEventListener('keydown', function(e){
+      if(e.key === "Escape") {
+        document.querySelector('.privacy-panel').classList.remove('active');
+      }
+    });
+    // 點擊 panel 以外區域自動關閉（可選）
+    document.addEventListener('click', function(e){
+      var panel = document.querySelector('.privacy-panel');
+      if (panel.classList.contains('active')) {
+        if (!panel.contains(e.target) && !e.target.classList.contains('privacy-toggle-btn')) {
+          panel.classList.remove('active');
+        }
+      }
+    });
+  </script>
+
+<script>
+  // 隱私權政策摺疊功能
+  function togglePrivacyPanel() {
+    const panel = document.getElementById('privacyPanel');
+    const isOpen = panel.classList.toggle('active');
+    panel.setAttribute('aria-hidden', !isOpen);
+    if(isOpen){
+      panel.focus();
+      setTimeout(()=>{ panel.scrollIntoView({behavior:'smooth', block:'end'}); }, 100);
+    }
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.key === "Escape"){
+      document.getElementById('privacyPanel').classList.remove('active');
+    }
+  });
+</script>
+
+<style>
+/* 隱私權政策專用CSS，可直接貼在你原本的style後面 */
+footer {
+  background: #232323;
+  color: #fff;
+  padding: 24px 0 16px 0;
+  text-align: center;
+  position: relative;
+}
+.privacy-toggle-btn {
+  background: #fff;
+  color: #232323;
+  border: none;
+  outline: none;
+  font-size: 1em;
+  padding: 10px 32px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px #0002;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-weight: bold;
+  margin-bottom: 10px;
+  letter-spacing: 0.1em;
+}
+.privacy-toggle-btn:active {
+  background: #eaeaea;
+}
+.privacy-panel {
+  max-width: 680px;
+  margin: 0 auto;
+  background: #22305a; /* 深藍色 */
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+  padding: 18px 18px 10px 18px;
+  text-align: left;
+  font-size: 1em;
+  line-height: 1.82;
+  position: relative;
+  margin-bottom: 10px;
+  display: none;
+  animation: fadeIn 0.3s;
+  z-index: 2;
+}
+.privacy-panel.active {
+  display: block;
+  animation: fadeIn 0.25s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px);}
+  to   { opacity: 1; transform: translateY(0);}
+}
+  .privacy-panel h2 {
+    font-size: 1.25em;
+    margin-top: 1.6em;
+    margin-bottom: 0.5em;
+    color: #8abfff; /* 輕微亮藍，可加強辨識 */
+    font-weight: bold;
+  }
+  .privacy-panel ul { margin: 0 0 1em 1.2em; }
+  .privacy-panel li { margin-bottom: 0.5em; }
+  .privacy-close-btn {
+    position: absolute;
+    right: 14px;
+    top: 12px;
+    font-size: 1.4em;
+    background: transparent;
+    border: none;
+    color: #b0c7ff;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .privacy-close-btn:hover {
+    background: #294380;
+    color: #fff;
+  }
+  /* 捲軸優化（深色風格） */
+  .privacy-panel {
+    scrollbar-color: #3b4a77 #22305a;
+    scrollbar-width: thin;
+  }
+  .privacy-panel::-webkit-scrollbar {
+    width: 8px;
+    background: #22305a;
+  }
+  .privacy-panel::-webkit-scrollbar-thumb {
+    background: #3b4a77;
+    border-radius: 6px;
+  }
+  @media (max-width: 600px) {
+    .privacy-panel {
+      max-width: 98vw;
+      padding: 12px 6vw 8px 6vw;
+      font-size: 0.98em;
+    }
+    .privacy-toggle-btn {
+      width: 90vw;
+      max-width: 400px;
+      font-size: 1em;
+    }
+}
+</style>
+
+<!-- ====== 隱私權政策 Footer 區塊放這裡 ====== -->
+  <footer>
+    <button class="privacy-toggle-btn" onclick="document.querySelector('.privacy-panel').classList.add('active')">
+      隱私權政策
+    </button>
+  <div id="privacyPanel" class="privacy-panel" tabindex="-1" aria-hidden="true">
+    <button class="privacy-close-btn" onclick="togglePrivacyPanel()" aria-label="關閉">&times;</button>
+    <h2>賭局 隱私權政策</h2>
+    <p>歡迎您使用「賭局」（以下簡稱本網站）。為保障您的隱私權與個人資料安全，請詳閱本政策內容，當您使用本網站時，即表示您同意本政策。</p>
+    <hr>
+   <h2>一、資料蒐集範圍</h2>
+<p>
+本網站會依實際服務需求，蒐集下列個人資料，並分別說明如下：
+</p>
+<ol>
+  <li>
+    <b>聯絡資訊</b>
+    <ul>
+      <li>蒐集情境：當用戶透過聯絡表單、電子郵件或其他管道，主動與我們聯絡或提交案件時。</li>
+      <li>使用目的：用於案件聯繫、身份確認、通知案件進度。</li>
+      <li>保存原則：僅於案件處理及爭議/訴訟需要期間保存，相關程序終止後即刪除。</li>
+    </ul>
+  </li>
+  <li>
+    <b>身分證明文件</b>
+    <ul>
+      <li>蒐集情境：當案件或第三方權益人需要進行身份驗證時，管理員得請求您提供身分證明文件。</li>
+      <li>使用目的：僅用於核對身份、避免冒名申請、維護案件公正性。</li>
+      <li>保存原則：訴訟結束後即予銷毀，不會另作他用。</li>
+    </ul>
+  </li>
+  <li>
+    <b>證據資料（截圖、影片、對話紀錄等）</b>
+    <ul>
+      <li>蒐集情境：當用戶主動上傳案件相關證據時。</li>
+      <li>蒐集項目：截圖、影片、文字紀錄、文件等。</li>
+      <li>使用目的：僅用於案件審核、糾紛處理、依法配合司法或訴訟程序。</li>
+      <li>保存原則：於案件、爭議或訴訟終止後即予刪除，除法律另有規定。</li>
+    </ul>
+  </li>
+  <li>
+    <b>第三方資訊</b>
+    <ul>
+      <li>蒐集情境：用戶所上傳的證據資料中，可能包含第三方之個人資料（如姓名、肖像、聯絡方式、對話內容等）。</li>
+      <li>蒐集項目：第三方姓名、肖像、聯絡方式、對話或其他可識別資訊。</li>
+      <li>使用目的：僅限於案件審核、糾紛處理、配合司法或訴訟程序之需要，不會用於其他目的或商業用途。</li>
+      <li>保存原則：與案件相關資料一併保存，於案件、爭議或訴訟終止後即予刪除，除法律另有規定。</li>
+      <li>第三方權益：若第三方認為其權益受損，可依本網站申訴流程提出刪除或遮蔽申請，網站將依法審查處理。</li>
+    </ul>
+  </li>
+  <li><strong>本網站不會主動蒐集您的IP位址、瀏覽器資訊、使用時間等技術性資料，亦不會使用Cookies或其他追蹤技術</strong>。所有蒐集之資料，僅限於本網站服務、案件處理及法定必要用途，絕不會用於任何商業或行銷用途。  </li>
+    </ul>
+    <hr>
+    <h2>二、資料使用方式</h2>
+    <ul>
+      <li>以上資料將僅用於<b>案件聲明、糾紛佐證、用戶間爭議處理</b>等本網站訴訟範圍內之用途。</li>
+      <li>本網站<b>不會將您的個人資料用於其他用途</b>，也不會出售、交換、出租，除非經您同意或法律要求。</li>
+      <li>若您主動公開留言、上傳截圖或影片，該內容可能會被其他用戶所見，請自行斟酌是否公開。</li>
+    </ul>
+    <hr>
+    <h2>三、資料安全與保護</h2>
+    <ul>
+      <li>本網站採取合理資訊安全措施，保障資料安全。</li>
+      <li>僅有授權人員可依業務需要查閱您的資料，未經授權人員不得擅自存取。</li>
+<li><b>非公開個人資料</b>，係指用戶向本網站管理員所提供，但<strong>未在本網站公開展示</strong>，僅限管理員或特定人員查閱之個人相關資訊。<br></li>
+  <li>例如：用戶透過聯絡表單或電子郵件提交的截圖、證據檔案、聯絡方式等，若尚未公開於本網站，均屬於非公開個人資料。<br></li>
+  <li><b>一旦資料被公開展示於本網站（如留言區、證據區、公開截圖等），即不再屬於非公開個人資料。</b></li>
+    </ul>
+    <hr>
+<h2>四、用戶權利</h2>
+<ul>
+  <li>您可依個人資料保護法，向我們請求查詢、閱覽、複製、補充、更正、停止蒐集、處理、利用或刪除您的個人資料。</li>
+  <li>若您有上述需求，請透過本網站聯絡我們，並請提供可識別身分之相關資訊。</li>
+  <li>用戶上傳但尚未公開於本網站的截圖、影片或相關檔案，經本人申請且審核同意後，得請求刪除。</li>
+  <li><b>已公開展示於本網站的證據資料（如截圖、影片等），原則上不受理刪除或更正申請，除非法律另有強制規定或經雙方協議。</b></li>
+  <li>您如欲撤回同意本網站處理您的個人資料，請與我們聯絡。撤回同意後，網站將停止處理您的個人資料，但已公開之內容原則上不作刪除或修正，除非法律另有強制規定。</li>
+  <li>您的個人資料將依本網站營運及訴訟需求保存，除法律另有規定外，於相關訴訟終止後即予刪除。</li>
+</ul>
+    <hr>
+<h2>五、政策修改</h2>
+<ul>
+  <li>本政策如有修正，將公布於本網站，恕不另行個別通知。</li>
+  <li>本網站有權隨時依實際需要及法令規定調整本政策內容，建議您隨時留意本頁公告內容。</li>
+  <li>重大變更事項（如資料蒐集範圍、使用目的調整等），本網站將於首頁或會員頁面顯著公告。</li>
+  <li>新修訂政策自公告日起生效，除非另有說明。</li>
+  <li>如您不同意修正內容，請立即停止使用本網站。惟因案件處理或法律規定，您所提供之資料將依法保存，無法任意刪除。</li>
+</ul>    <hr>
+    <p><b>貓崎雪 敬上</b></p>
+  </div>
+    <div style="margin-top:14px;font-size:0.97em;opacity:0.85;">
+      &copy; 2025 Your Website Name
+    </div>
+
+<!-- ====== 隱私權政策 Footer 區塊結束 ====== -->
+</footer>
+</body>
+</html>
