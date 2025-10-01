@@ -262,25 +262,52 @@ transform: scale(1.09);
   display: inline-block;
 }
     #consentModal, #secondModal, #blockModal, #privacyModal {
-      position: fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.62);
+      position: fixed; left:0; top:0; width:100vw; height:100vh;   
+      background: rgba(255, 215, 0, 0.15);
       display:none; align-items:center; justify-content:center; z-index:10000;
     }
     .modal-box {
-      background: #fff; color:#222; border-radius: 12px; padding: 36px 26px 26px 26px; max-width: 350px;
-      box-shadow: 0 4px 24px #0004; text-align: center;
-      position: relative;
+  background: #fffbea;
+  color: #8d6a00;
+  border-radius: 16px;
+  border: 2.5px solid #ffd700;
+  box-shadow: 0 8px 30px #ffd70044;
+  font-size: 1.2em;
+  padding: 44px 32px;
+  text-align: center;
+  position: relative;
     }
-    .modal-btn { margin: 18px 6px 0 6px; padding: 8px 24px; font-size: 1em; border-radius: 7px; border:none; background: #0090ff; color:#fff; cursor: pointer; }
-    .modal-btn.no { background: #aaa; color: #fff; }
-    #mainContent { display: none; }
-    .privacy-link {
-      display: inline-block;
-      color: #0997e7;
-      text-decoration: underline;
-      cursor: pointer;
-      margin-top: 6px;
-      font-size: 1em;
-    }
+.modal-box::before {
+  content: "🌟";
+  display: block;
+  font-size: 2.7em;
+  margin-bottom: 12px;
+}
+.modal-btn {
+  background: linear-gradient(90deg, #ffd700 60%, #ffe272 100%);
+  color: #634900;
+  font-weight: bold;
+  border: none;
+  border-radius: 7px;
+  padding: 10px 32px;
+  margin-top: 18px;
+  margin-right: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 14px #ffe27244;
+  transition: background 0.18s, color 0.13s;
+}
+.modal-btn.no {
+  background: #eaeaea;
+  color: #777;
+}
+.modal-btn:hover {
+  background: linear-gradient(90deg, #ffe272 80%, #ffd700 100%);
+}
+.privacy-link {
+  color: #dcae00;
+  text-decoration: underline dotted;
+  font-weight: bold;
+}
 #privacyModal .privacy-modal-box {
   max-width: 540px;
   padding: 0;
@@ -325,15 +352,16 @@ transform: scale(1.09);
   transition: all 0.3s ease;
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
-
+#mainContent { display: none; }
 </style>
 </head>
 
 <body>
   <div id="consentModal" style="display:flex;">
     <div class="modal-box">
-      <h2>台灣限定內容</h2>
-      <div style="margin:12px 0 10px 0;">本頁僅限台灣地區瀏覽。<br>請同意偵測您的IP來源以進入。</div>
+      <h2>說明</h2>
+      <div style="margin:12px 0 10px 0;">本頁僅限台灣地區瀏覽。<br>請同意偵測您的IP來源以進入。<p>每次彈窗都明確告知且徵得同意，且不額外儲存 IP，台灣、歐盟地區是合理的。<br>僅偵測不主動儲存 IP，用於法律偵辦。<br>同意代表允許本頁偵測IP進入。
+      </p></div>
       <button class="modal-btn" id="consentYes">同意</button>
       <button class="modal-btn no" id="consentNo">不同意</button>
       <br>
@@ -343,21 +371,21 @@ transform: scale(1.09);
 
   <div id="secondModal">
     <div class="modal-box">
-      <h2>說明</h2>
-      <p>
-        每次彈窗都明確告知且徵得同意，且不額外儲存 IP，台灣、歐盟地區是合理的。<br>
-        僅偵測不主動儲存 IP，用於法律偵辦。<br>
-        點同意代表允許本頁偵測IP進入。
-      </p>
-      <button class="modal-btn" id="secondYes">同意</button>
-      <button class="modal-btn no" id="secondNo">不同意</button>
+<h2>🌟支持者專屬內容</h2>
+<p>
+  喵～支持一下雪好嗎？(>ω<)ﾉ ✨  <br>
+  你的打賞就像星星一樣，讓雪閃閃發亮～💫  <br>
+  謝謝小可愛的陪伴與應援！<br>
+</p>
+      <button class="modal-btn" id="secondYes">是的！我支持雪💖</button>
+      <button class="modal-btn no" id="secondNo">抱歉，我選擇退出</button>
     </div>
   </div>
 
   <div id="blockModal">
     <div class="modal-box">
       <h2>無法瀏覽</h2>
-      <div style="margin:12px 0 10px 0;">您的IP不在台灣地區，或您拒絕提供IP，無法瀏覽本頁內容。</div>
+      <div style="margin:12px 0 10px 0;">您的IP不在台灣地區，或您選擇退出，無法瀏覽本頁內容。</div>
     </div>
   </div>
 
@@ -698,48 +726,55 @@ backToTop.addEventListener('click', function() {
 </script>
 
   <script>
-    const IPINFO_TOKEN = "ea73d32ca2e230";
-    const consentModal = document.getElementById('consentModal');
-    const secondModal = document.getElementById('secondModal');
-    const blockModal = document.getElementById('blockModal');
-    const privacyModal = document.getElementById('privacyModal');
-    const mainContent = document.getElementById('mainContent');
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('mainContent').style.display = 'none';
+  const IPINFO_TOKEN = "ea73d32ca2e230";
+  const consentModal = document.getElementById('consentModal');
+  const secondModal = document.getElementById('secondModal');
+  const blockModal = document.getElementById('blockModal');
+  const privacyModal = document.getElementById('privacyModal');
+  const mainContent = document.getElementById('mainContent');
 
     // 第一次同意
-    document.getElementById('consentYes').onclick = function() {
-      consentModal.style.display = 'none';
-      secondModal.style.display = 'flex';
-    };
-    document.getElementById('consentNo').onclick = function() {
-      consentModal.style.display = 'none';
-      blockModal.style.display = 'flex';
-    };
+  document.getElementById('consentYes').onclick = function() {
+    consentModal.style.display = 'none';
+    secondModal.style.display = 'flex';
+  };
+  document.getElementById('consentNo').onclick = function() {
+    consentModal.style.display = 'none';
+    blockModal.style.display = 'flex';
+  };
 
     // 第二次同意
-document.getElementById('secondYes').onclick = async function() {
-  secondModal.style.display = 'none';
-  try {
-    const res = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
-    const data = await res.json();
-    if (data.country === 'TW') {
-      window.location.href = "https://nekosaki_yuki.bobaboba.me/";
-    } else {
+  document.getElementById('secondYes').onclick = async function() {
+    secondModal.style.display = 'none';
+    try {
+      const res = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
+      const data = await res.json();
+      if (data.country === 'TW') {
+        window.location.href = "https://nekosaki_yuki.bobaboba.me/";
+      } else {
+        blockModal.style.display = 'flex';
+      }
+    } catch (e) {
       blockModal.style.display = 'flex';
     }
-  } catch (e) {
-    blockModal.style.display = 'flex';
-  }
-};
+  };
 
     // 隱私權政策顯示/關閉
-    document.getElementById('showPrivacy').onclick = function() {
-      consentModal.style.display = 'none';
-      privacyModal.style.display = 'flex';
-    };
-    document.getElementById('closePrivacy').onclick = function() {
-      privacyModal.style.display = 'none';
-      consentModal.style.display = 'flex';
-    };
+  document.getElementById('secondNo').onclick = function() {
+    secondModal.style.display = 'none';
+    blockModal.style.display = 'flex';
+  };
+  document.getElementById('showPrivacy').onclick = function() {
+    consentModal.style.display = 'none';
+    privacyModal.style.display = 'flex';
+  };
+  document.getElementById('closePrivacy').onclick = function() {
+    privacyModal.style.display = 'none';
+    consentModal.style.display = 'flex';
+  };
+});
   </script>
 
   <script>
