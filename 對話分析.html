@@ -716,24 +716,20 @@ backToTop.addEventListener('click', function() {
     };
 
     // 第二次同意
-    document.getElementById('secondYes').onclick = async function() {
-      secondModal.style.display = 'none';
-      try {
-        const res = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
-        const data = await res.json();
-        if (data.country === 'TW') {
-          mainContent.style.display = 'block';
-        } else {
-          blockModal.style.display = 'flex';
-        }
-      } catch (e) {
-        blockModal.style.display = 'flex';
-      }
-    };
-    document.getElementById('secondNo').onclick = function() {
-      secondModal.style.display = 'none';
+document.getElementById('secondYes').onclick = async function() {
+  secondModal.style.display = 'none';
+  try {
+    const res = await fetch(`https://ipinfo.io/json?token=${IPINFO_TOKEN}`);
+    const data = await res.json();
+    if (data.country === 'TW') {
+      window.location.href = "https://nekosaki_yuki.bobaboba.me/";
+    } else {
       blockModal.style.display = 'flex';
-    };
+    }
+  } catch (e) {
+    blockModal.style.display = 'flex';
+  }
+};
 
     // 隱私權政策顯示/關閉
     document.getElementById('showPrivacy').onclick = function() {
